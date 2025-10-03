@@ -2,6 +2,10 @@
   "name": "vscode-js-transform",
   "displayName": "vscode-js-transform",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daniilsv/vscode-js-transform"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.97.0"
@@ -19,7 +23,9 @@
         "type": "js-transform-notebook",
         "displayName": "JS Text Transformer",
         "selector": [
-          { "filenamePattern": "*.js-transform" }
+          {
+            "filenamePattern": "*.js-transform"
+          }
         ]
       }
     ],
