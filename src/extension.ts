@@ -1,3 +1,4 @@
+import axios from "axios";
 import * as vm from "vm";
 import * as vscode from "vscode";
 
@@ -116,7 +117,7 @@ export function activate(context: vscode.ExtensionContext) {
         ),
         new vscode.NotebookCellData(
           vscode.NotebookCellKind.Markup,
-          "## Transform\nWrite JS that returns a string from `input`.",
+          "## Transform\nWrite JS that returns a string from `input`.\n\nconst input='_file from above_';\n\nsetTimeout, setInterval, axios are allowed.",
           "markdown"
         ),
         new vscode.NotebookCellData(
@@ -135,7 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(openCmd);
-  // Регистрируем сериализатор (обязательно!)
+  // Регистрируем сериализатор
   const serializer: vscode.NotebookSerializer = {
     async deserializeNotebook(
       content: Uint8Array
@@ -189,14 +190,18 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposableSerializer);
 }
 function addReturnToLastLine(code: string): string {
-  const lines = code.split('\n');
-  
+  const lines = code.split("\n");
+
   // Найдём последнюю непустую строку, игнорируя комментарии в конце
   let lastExprIndex = -1;
   for (let i = lines.length - 1; i >= 0; i--) {
     const trimmed = lines[i].trim();
     // Пропускаем пустые строки и комментарии
-    if (trimmed === '' || trimmed.startsWith('//') || trimmed.startsWith('/*')) {
+    if (
+      trimmed === "" ||
+      trimmed.startsWith("//") ||
+      trimmed.startsWith("/*")
+    ) {
       continue;
     }
     lastExprIndex = i;
@@ -216,10 +221,12 @@ function addReturnToLastLine(code: string): string {
   // - начинается с { (блок)
   if (
     /^\s*return\b/.test(lastLine) ||
-    /^(function|class|let|const|var|if|for|while|do|switch|try|import|export|async\s+function)\b/.test(lastLine) ||
-    lastLine.endsWith(';') ||
-    lastLine.endsWith('}') ||
-    lastLine.startsWith('{')
+    /^(function|class|let|const|var|if|for|while|do|switch|try|import|export|async\s+function)\b/.test(
+      lastLine
+    ) ||
+    lastLine.endsWith(";") ||
+    lastLine.endsWith("}") ||
+    lastLine.startsWith("{")
   ) {
     return code;
   }
@@ -232,10 +239,10 @@ function addReturnToLastLine(code: string): string {
   // Добавляем return к последней строке
   lines[lastExprIndex] = lines[lastExprIndex].replace(
     /\S.*$/,
-    match => `return (${match});`
+    (match) => `return (${match});`
   );
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 async function runUserScript(code: string, input: string): Promise<string> {
@@ -249,6 +256,7 @@ async function runUserScript(code: string, input: string): Promise<string> {
     clearTimeout,
     setInterval,
     clearInterval,
+    axios,
     console: {
       log: (...args: any[]) => console.log("[User Script]", ...args),
       error: (...args: any[]) => console.error("[User Script]", ...args),
